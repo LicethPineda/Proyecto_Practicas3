@@ -17,6 +17,62 @@ from plotly.subplots import make_subplots
 
 import google.generativeai as genai
 
+
+genai.configure(api_key="AQ.Ab8RN6Ltp2IUPUVy0c505wdPEPbq8axcgo_wwe9BrgURezPlVQ")
+
+for model in genai.list_models():
+    print(model.name)
+
+modelo = genai.GenerativeModel(
+    "gemini-flash-latest"
+)
+
+def generar_retroalimentacion(
+    agente,
+    inc,
+    task,
+    error_inc,
+    error_task,
+    uso_kb,
+    calidad_inc,
+    calidad_task
+):
+
+    prompt = f"""
+    Actúa como analista de calidad de una mesa de ayuda IT.
+
+    Analiza el desempeño del siguiente agente:
+
+    Agente: {agente}
+
+    Indicadores:
+    - Incidentes gestionados: {inc}
+    - Tareas gestionadas: {task}
+    - Error INC: {error_inc}%
+    - Error TASK: {error_task}%
+    - Calidad INC: {calidad_inc}%
+    - Calidad TASK: {calidad_task}%
+    - Uso de KB: {uso_kb}%
+
+    Genera una retroalimentación profesional orientada al desempeño.
+
+    Reglas:
+    - Basa el análisis únicamente en los indicadores suministrados.
+    - No inventes acciones futuras.
+    - No menciones capacitaciones, reuniones, sesiones ni compromisos.
+    - No uses frases como "se agendará", "se realizará" o "se coordinará".
+    - Enfócate en fortalezas y oportunidades de mejora.
+    - Utiliza lenguaje corporativo y objetivo.
+
+    Máximo 120 palabras.
+    """
+
+    respuesta = modelo.generate_content(prompt)
+
+    return respuesta.text
+
+
+
 st.set_page_config(
     page_title="Mi app", layout="wide", initial_sidebar_state="collapsed"
 )
@@ -170,6 +226,16 @@ def main():
             100 - error_task,
             2
         )
+        retroalimentacion = generar_retroalimentacion(
+        agente=agente_individual,
+        inc=total_inc_agente,
+        task=total_task_agente,
+        error_inc=error_inc,
+        error_task=error_task,
+        uso_kb=uso_kb,
+        calidad_inc=calidad_inc,
+        calidad_task=calidad_task
+)
 
         col1, col2 = st.columns(2)
 
@@ -186,26 +252,11 @@ def main():
             )
 
         st.subheader(
-            "📋 Retroalimentación automática"
+            "📋 Retroalimentación automática IA"
         )
 
-        if error_inc <= 2:
+        st.info(retroalimentacion)
 
-            st.success(
-                "✅ Excelente calidad en la creación de incidentes."
-            )
-
-        elif error_inc <= 5:
-
-            st.warning(
-                "⚠️ Hay oportunidades de mejora en la creación de incidentes."
-            )
-
-        else:
-
-            st.error(
-                "🚨 Alto porcentaje de error en incidentes."
-            )
 
     # Casos mal creados formato de tabla
     task_agente = (
