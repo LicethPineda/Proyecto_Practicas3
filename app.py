@@ -13,6 +13,10 @@ import seaborn as sns
 import streamlit as st
 from plotly.subplots import make_subplots
 
+#Api con inteligencia artificial
+
+import google.generativeai as genai
+
 st.set_page_config(
     page_title="Mi app", layout="wide", initial_sidebar_state="collapsed"
 )
