@@ -347,6 +347,7 @@ def main():
         .size()
         .reset_index(name="Tareas Mal Creadas")
     )
+    
 
     ranking_task = task_total.merge(task_error, on="Abierto por", how="left").fillna(0)
 
